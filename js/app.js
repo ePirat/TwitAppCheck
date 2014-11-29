@@ -12,7 +12,7 @@ App.Router.map(function() {
 
 App.AppsRoute = Ember.Route.extend({
   model: function(params) {
-  	return Ember.$.getJSON('https://rawgit.com/ePirat/TwitAppCheck/master/app_index.json').then(function(data) {
+  	return Ember.$.getJSON('https://cdn.rawgit.com/ePirat/TwitAppCheck/v0.1/app_index.json').then(function(data) {
       Bigdata = data;
       return data;
     });
@@ -124,7 +124,7 @@ App.AppsController = Ember.ArrayController.extend({
 App.AppRoute = Ember.Route.extend({
 	model: function(params) {
     var details = null;
-    return jQuery.getJSON('https://rawgit.com/ePirat/TwitAppCheck/master/app_data/' + params.app_id + '.json').then(function(data) {
+    return jQuery.getJSON('https://cdn.rawgit.com/ePirat/TwitAppCheck/v0.1/app_data/' + params.app_id + '.json').then(function(data) {
       base = Bigdata.findBy('id', params.app_id);
       if (data) {
         data.description = marked(data.description);
