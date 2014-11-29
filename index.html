@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ember Starter Kit</title>
+
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  <style type="text/css">
+    /* centered columns styles */
+    .row-centered {
+        text-align:center;
+    }
+    .col-centered {
+        display:inline-block;
+        float:none;
+        /* reset the text-align */
+        text-align:left;
+        /* inline-block space fix */
+        margin-right:-4px;
+    }
+  </style>
+</head>
+<body>
+  <script type="text/x-handlebars">
+    <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          {{#link-to 'apps' class="navbar-brand"}}TwitAppCheck{{/link-to}}
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            {{#link-to 'apps' tagName="li" href=false}}{{#link-to 'apps'}}The List{{/link-to}}{{/link-to}}
+            {{#link-to 'about' tagName="li" href=false}}{{#link-to 'about'}}About{{/link-to}}{{/link-to}}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    {{outlet}}
+  </script>
+
+  <script type="text/x-handlebars" id="about">
+    <div class="container">
+      <div class="page-header">
+        <h1>App List <span class="visible-xs-inline"><br /></span><small>What’s this?</small></h1>
+      </div>
+      <p class="lead"><mark>tl;dr</mark> So if you didn’t already read it, Twitter is checking what Apps you have installed on your iPhone or Android Device. This is the List of Apps that Twitter can detect on iOS Devices.</p>
+      <p>What?! Yes it’s true, and Twitter officially announce this <a href="https://support.twitter.com/articles/20172069">here</a>:</p>
+      <blockquote>We are only collecting the list of applications you have installed. We are <strong>not</strong> collecting any data within the applications.</blockquote>
+      <p>Ok, they are not collecting data inside the Apps, what a relieve, but wtf Twitter! There was already a list of the Apps that Twitter can detect on your iOS device on <a href="https://news.ycombinator.com/item?id=8670279">Hacker News</a>, but I thought it would be better to make this all a bit more visual and easier to understand. That’s why I built this overview page. It nearly lists all Apps, only some for which it was not possible to find the corresponding Apps are not listed.</p>
+      <h2>How does it work? <span class="visible-xs-inline"><br /></span><small>The technical foo</small></h2>
+      <p>Since iOS is restrictive what Apps can do and can’t do, Twitter.app can’t just easily look what Apps are installed on your Phone. <br />The trick they use is, that some Apps have a so called URI-Sheme, this means that they can be opened by a special URI, something like <code>foobarapp://</code>, which will open the App. So Twitter collected a list of many of these URI shemes and checks with <code><a href="https://developer.apple.com/library/ios/Documentation/UIKit/Reference/UIApplication_Class/index.html#//apple_ref/occ/instm/UIApplication/canOpenURL:" target="_blank">canOpenURL</a></code> method what Apps from this list you have installed.
+      <h2>I don’t want this! <span class="visible-xs-inline"><br /></span><small>How to disable it</small></h2>
+      <p>On the <a href="https://support.twitter.com/articles/20172069">Twitter Support Article</a> about this new “feature” are the steps described to disabled it. Note that it seems that Twitter is rolling this out slowly, so not all people are able to disabled it yet, because it is not yet rolled out to everyone, and note:
+      <p>
+      <blockquote>Additionally, if you have previously opted out of interest-based ads by turning on “Limit Ad Tracking” on your iOS device or by adjusting your Android device settings to “Opt out of interest-based ads,” we will not collect your apps unless you adjust your device settings.</blockquote>
+    </div>
+  </script>
+
+  <script type="text/x-handlebars" id="loading">
+  <div class="container">
+    <h1 id="loadingtext">Loading… <small>Waaaaaaaaait…</small></h1>
+  </div>
+  </script>
+
+  <script type="text/x-handlebars" id="error">
+  <div class="container">
+    <h1>Loading failed :( <small>Reload to retry.</small></h1>
+  </div>
+  </script>
+
+  <script type="text/x-handlebars" id="apps">
+  <div class="container">
+    <div class="page-header">
+      <h1>App List <span class="visible-xs-inline"><br /></span><small>Check which Apps Twitter can detect!</small></h1>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-md-3" style="padding-bottom: 2em">
+        {{input class="form-control" value=search placeholder="Search…" action="search"}}
+      </div>
+    </div>
+    <div class="row">
+    {{#each item in paged}}
+      <div class="col-xs-6 col-md-3">
+        <div class="thumbnail">
+          <img {{bind-attr src=item.icon alt=item.name}} class="img-thumbnail">
+          <div class="caption" style="height: 110pt !important">
+            <h4>{{#link-to 'app' item.id data-toggle="modal" data-target="#appModal"}}{{item.name}}{{/link-to}}</h4>
+            <p>by {{item.dev}}</p>
+          </div>
+        </div>
+      </div>
+    {{/each}}
+    </div>
+    <div class="row row-centered">
+      <div class="col-centered">
+        <nav>
+          <ul class="pagination">
+            {{#each n in shortPages}}
+            {{#if n }}
+              {{#link-to (query-params page=n) tagName="li" href=false}}{{link-to n (query-params page=n)}}{{/link-to}}
+            {{else}}
+              <li class="disabled"><a>…</a></li>
+            {{/if}}
+            {{/each}}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="appModal" tabindex="-1" role="dialog" aria-labelledby="appModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        {{outlet}}
+      </div>
+    </div>
+  </div>
+  </script>
+
+  <script type="text/x-handlebars" id="app">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+      <h4 class="modal-title" id="appModalLabel">{{name}} <small>by {{dev}}</small></h4>
+    </div>
+    <div class="modal-body">
+      <img style="height: 110pt; float: left; margin-right: 1em;" src="{{unbound icon}}" alt="App Icon of {{unbound name}}" class="img-rounded">
+      <p>{{{description}}}</p>
+      <p>Open in <a href="{{unbound trackViewUrl}}" target="_blank">App Store</a></p>
+    </div>
+    <div class="modal-footer">
+      <p>ID: {{id}}</p>
+    </div>
+  </script>
+  <script src="js/libs/jquery-1.10.2.js"></script>
+  <script src="js/libs/handlebars-v1.3.0.js"></script>
+  <script src="js/libs/spin.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+  <script src="js/libs/ember-1.8.1.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
